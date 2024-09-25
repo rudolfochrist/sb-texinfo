@@ -38,7 +38,7 @@
 (defpackage :sb-texinfo
   (:use :cl :sb-mop)
   (:shadow #:documentation)
-  (:export #:generate-includes #:document-package #:document-package-pathname)
+  (:export #:generate-includes #:document-packages)
   (:documentation
    "Tools to generate TexInfo documentation from docstrings."))
 
@@ -1226,13 +1226,14 @@ with the same arguments."
                                   :type nil)))
 
 
-(defun document-package (package &key
-                                   output-file
-                                   (standalone t)
-                                   title
-                                   (write-backmatter t)
-                                   (write-menu t)
-                                   exclude-node)
+(defun document-packages (packages system-name
+                          &key
+                            output-file
+                            (standalone t)
+                            title
+                            (write-backmatter t)
+                            (write-menu t)
+                            exclude-node)
   "Creates Texinfo documentation for PACKAGE in OUTPUT-FILE, which defaults to
 the <shortest-package-name>.texinfo. Returns the pathname of the created file
 as the primary value. An \"include/\" directory is created in the same
@@ -1250,34 +1251,36 @@ making this function a convenient way to generate an initial template
 for a manually maintained Texinfo manual."
   (generate-includes (relative-includes (or output-file
                                             ""))
-                     (list package)
-                     :base-package package
+                     packages
+                     :base-package (first packages)
                      :write-backmatter-p write-backmatter)
   (handler-bind ((warning #'muffle-warning))
-    (let* ((filename (document-package-pathname package :output-file output-file))
-           (*base-package* (find-package package))
-           (system (asdf:find-system package nil))
+    (let* ((filename (or output-file (make-pathname :name system-name :type "texi")))
+           (*base-package* (first packages))
+           (system (asdf:find-system system-name nil))
            (desc (when system
                    (ignore-errors (asdf:system-description system))))
            (long-desc (when system
-                        (ignore-errors (asdf:system-description system))))
-           (package-doc (let ((*documentation-package* *base-package*))
-                          (maybe-documentation *base-package* t)))
-           (docs (collect-documentation *base-package* :no-package t)))
+                        (ignore-errors (asdf:system-description system)))))
       (with-texinfo-file filename
         (when standalone
           (write-texinfo-header (or title
                                     (string-capitalize
-                                     (package-shortest-name package)))
+                                     system-name))
                                 (pathname-name filename)
                                 desc
                                 long-desc))
         (write-line "@include include/sb-texinfo.texinfo" *texinfo-output*)
-        (when write-menu
-          (write-menu (when package-doc (package-shortest-name package)) docs))
-        (write-chapter/package package package-doc)
-        (write-chapter/dictionary docs exclude-node)
+        (dolist (package-name packages)
+          (let* ((package (find-package package-name))
+                 (package-doc (let ((*documentation-package* package))
+                                (maybe-documentation package t)))
+                 (docs (collect-documentation package :no-package t)))
+            (when write-menu
+              (write-menu (when package-doc (package-shortest-name package)) docs))
+            (write-chapter/package package package-doc)
+            (write-chapter/dictionary docs exclude-node)))
         (when standalone
-          (write-line "@include include/short-backmatter.texinfo" *texinfo-output*)
+          (write-line "@include include/backmatter.texinfo" *texinfo-output*)
           (write-line "@bye" *texinfo-output*)))
       filename)))
