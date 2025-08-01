@@ -1258,6 +1258,6 @@ for a manually maintained Texinfo manual."
             (write-chapter/package package package-doc)
             (write-chapter/dictionary docs exclude-node)))
         (when standalone
-          (write-line "@include include/backmatter.texinfo" *texinfo-output*)
+          (write-line "@include include/short-backmatter.texinfo" *texinfo-output*)
           (write-line "@bye" *texinfo-output*)))
       filename)))
