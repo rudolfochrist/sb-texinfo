@@ -844,7 +844,6 @@ followed another tabulation label or a tabulation body."
 
 (defun write-texinfo (doc)
   "Writes TexInfo for a DOCUMENTATION instance to *TEXINFO-OUTPUT*."
-  (texinfo-index doc)
   (texinfo-anchor doc)
   (texinfo-begin doc)
   (texinfo-inferred-body doc)
