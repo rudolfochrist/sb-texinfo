@@ -1012,15 +1012,14 @@ although their accessors are."
           macro-name package-name))
 
 (defun write-backmatter (&key (concept-index t)
-                              (function-index t)
-                              (variable-index t)
-                              (type-index t)
-                              (colophon t))
+                           (function-index t)
+                           (variable-index t)
+                           (type-index t)
+                           (colophon t))
   (when concept-index
     (write-line "
 @node Concept Index
-@comment  node-name,  next,  previous,  up
-@appendix Concept Index
+@unnumbered Concept Index
 
 @printindex cp
 "
@@ -1028,8 +1027,7 @@ although their accessors are."
   (when function-index
     (write-line "
 @node Function Index
-@comment  node-name,  next,  previous,  up
-@appendix Function Index
+@unnumbered Function Index
 
 @printindex fn
 "
@@ -1037,8 +1035,7 @@ although their accessors are."
   (when variable-index
     (write-line "
 @node Variable Index
-@comment  node-name,  next,  previous,  up
-@appendix Variable Index
+@unnumbered Variable Index
 
 @printindex vr
 "
@@ -1046,8 +1043,7 @@ although their accessors are."
   (when type-index
     (write-line "
 @node Type Index
-@comment  node-name,  next,  previous,  up
-@appendix Type Index
+@unnumbered Type Index
 
 @printindex tp
 "
