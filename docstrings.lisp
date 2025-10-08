@@ -1257,7 +1257,7 @@ for a manually maintained Texinfo manual."
               (write-menu (when package-doc (package-shortest-name package)) docs))
             (write-chapter/package package package-doc)
             (write-chapter/dictionary docs exclude-node)))
-        (when write-backmatter-p
+        (when write-backmatter
           (write-line "@include include/short-backmatter.texinfo" *texinfo-output*))
         (when standalone
           (write-line "@bye" *texinfo-output*)))
